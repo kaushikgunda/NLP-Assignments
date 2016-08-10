@@ -29,36 +29,15 @@ class Tokenizer(object):
 		return self.tokens;
 
 	def tokenizeWord( self, sentence ):
-		sentence = removePattern( sentence )
-		sentence = [ removeMentions( word ) 	for word in sentence ]
-		sentence = [ removeTag( word ) 	for word in sentence ]
-		sentence = [ removeUrl( word ) 	for word in sentence ]
-		sentence = [ removePunct( word ) 	for word in sentence ]
+		sentence = removePattern( sentence, regex['smileys'] )
+		sentence = [ removeMentions( word,regex['mentions'] ) 	for word in sentence ]
+		sentence = [ removeTag( word,regex['tags'] ) 	for word in sentence ]
+		sentence = [ removeUrl( word,regex['url'] ) 	for word in sentence ]
 
 	def removePattern( self, sentence, pattern ):
-		emoticons = re.findall( , sentence )
-		self.tokens.extend( emoticons )
-		return removeElementsFromStr( sentence, emoticons )
-
-	def removeMentions( self, sentence ):
-		mentions = re.findall( regex['mentions'], sentence )
-		self.tokens.extend( mentions )
-		return removeElementsFromStr( sentence, mentions )
-
-	def removeTag( self, word ):		
-		mentions = re.findall( regex['tags'], sentence )
-		self.tokens.extend( mentions )
-		return removeElementsFromStr( sentence, mentions )
-
-	def removeUrl( self, word ):
-		urls = re.findall( regex['url'], sentence )
-		self.tokens.extend( urls )
-		return removeElementsFromStr( sentence, urls )
-
-	def removeEmail( self, word ):
-		emails = re.findall( regex['email'], sentence )
-		self.tokens.extend( emails )
-		return removeElementsFromStr( sentence, emails )
+		patterns = re.findall( pattern, sentence )
+		self.tokens.extend( patterns )
+		return removeElementsFromStr( sentence, patterns )
 
 	def removeElementsFromStr( self, sentence, emoticons):
 		words = []
