@@ -6,7 +6,7 @@ import re, itertools
 smileys = """<3 :D :-D :) :-) :P :-P :-E >-) :( :-( :-< :P :-O :-* :-@ :'( :-$ :-\ :-# (((H))) :-X `:-) :^) :-& E-:-) <:-) :-> (-}{-) :-Q $_$ @@ :-! :-D :*) :@ :-@ :-0 :-----) %-( :-.) :-($) (:I     |-O :@) <(-_-)> d[-_-]b ~:0 -@--@- \VVV/ \%%%/ :-# :'-) {:-) ;) ;-) O:-) O*-) |-O (:-D @>--;-- @-}--- =^.^= O.o \_/) (o.o) (___)0 ~( 8^(I)"""
 
 regex = {}
-regex['word'] = re.compile( "([A-Za-z0-9\-_]+)" );
+regex['word'] = re.compile( "([A-Za-z0-9\-_]+(\'[A-Za-z][A-Za-z]?)?)\'?" );
 regex['smileys'] = re.compile( "|".join( map(re.escape,smileys.split()) ) )
 regex['unicodeEmoji'] = re.compile(u'(['
 								    u'\U0001F300-\U0001F64F'
