@@ -28,10 +28,10 @@ class Tokenizer(object):
 		for line in lines:
 			self.__tokenizeWord( line );
 	
-	def __getTokens__( self ):
+	def getTokens( self ):
 		return self.tokens;
 
-	def __clearTokens__( self ):
+	def clearTokens( self ):
 		self.tokens = []
 
 	def __tokenizeWord( self, sentence ):
