@@ -12,8 +12,8 @@ regex['email'] = re.compile( r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
 regex['url'] = re.compile( "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)" )
 regex['ellipses'] = re.compile( r"...$" )
 regex['punct'] = re.compile( "|".join( [re.escape(c) for c in punctuation] ) )
-regexLst = [ regex['word'], regex['smileys'], regex['mentions'], regex['tags'], 
-				regex['email'], regex['url'], regex['ellipses'], regex['punct'] ]
+regexLst = [ regex['email'], regex['url'], regex['word'], regex['smileys'], 
+				regex['mentions'], regex['tags'], regex['ellipses'], regex['punct'] ]
 
 
 class Tokenizer(object):
@@ -28,30 +28,29 @@ class Tokenizer(object):
 		for line in lines:
 			self.__tokenizeWord( line );
 	
-	def __getTokens( self ):
+	def __getTokens__( self ):
 		return self.tokens;
 
+	def __clearTokens__( self ):
+		self.tokens = []
+
 	def __tokenizeWord( self, sentence ):
-		sentence = "RT @bool: This is@a_tweet@for12Testing#the#tokens#testing:'(with :)with:D#happy#face:PLOL"
 		sentence = sentence.strip()
-		tokens = []
 		while len(sentence)!=0:
 			patternFound = False
 			for regexp in regexLst:
 				m = regexp.match( sentence )
 				if m is not None:
 					patternFound = True
-					tokens.append( m.group() );
+					self.tokens.append( m.group() );
 					sentence = sentence[m.end():].strip()
 					break;
 			if patternFound == False:
 				m = re.match( r"^(.*?) ", sentence )
 				if m is None:
-					tokens.append( sentence[0] )
+					self.tokens.append( sentence[0] )
 					sentence = sentence[1:].strip()
 					break;
 				else:
-					tokens.append( sentence[:m.end()-1] )
+					self.tokens.append( sentence[:m.end()-1] )
 					sentence = sentence[m.end():].strip()
-		print tokens
-		return self.tokens
