@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
 
-import tweetTokenizer_1 as t
+import tweetTokenizer as t
 o = t.Tokenizer()
-o.tokenize("RT @ThatsEarth: Dominican Republic is beautiful https://t.co/yib5IftBUx")
-print o.tokens;
+s = "What should I do, be happy with lies or be sad with the truth 😔😩🤔"
+print s
+s = s.decode('utf8')
+print s
+o.tokenize(s)
+print o.getTokens();
