@@ -40,7 +40,6 @@ class Tokenizer(object):
 			for regexp in regexLst:
 				m = regexp.match( sentence )
 				if m is not None:
-					print regexLst.index(regexp)
 					patternFound = True
 					tokens.append( m.group() );
 					sentence = sentence[m.end():].strip()
