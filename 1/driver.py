@@ -2,7 +2,7 @@
 
 import tweetTokenizer as t
 o = t.Tokenizer()
-s = "Whats' should'ntI do, be happy with lies or be sad with the truth 😔😩🤔"
+s = "Whats' should'ntI do, Boom-boom be happy with lies or be sad with the truth 😔😩🤔"
 print s
 s = s.decode('utf8')
 print s
