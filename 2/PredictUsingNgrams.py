@@ -58,8 +58,6 @@ def getProbability( word, n ):
 	probability = 1.0
 
 
-
-
 if __name__ == "__main__":
 	doTokenization();
 	word = "us"
