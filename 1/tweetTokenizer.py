@@ -17,7 +17,7 @@ regex['mentions'] = re.compile( r"(@\w+)" )
 regex['tags'] = re.compile( r"(#[A-Za-z0-9]+)" )
 regex['email'] = re.compile( r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)" )
 regex['url'] = re.compile( "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)" )
-regex['ellipses'] = re.compile( r"...$" )
+regex['ellipses'] = re.compile( r"\.\.\.$" )
 regex['punct'] = re.compile( "|".join( [re.escape(c) for c in punctuation] ) )
 regexLst = [ regex['email'], regex['url'], regex['word'], 
 				regex['smileys'], regex['unicodeEmoji'],
