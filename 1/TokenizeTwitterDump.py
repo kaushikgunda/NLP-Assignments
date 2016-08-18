@@ -3,8 +3,8 @@ import tweetTokenizer as t
 import codecs
 
 o = t.Tokenizer()
-fileIn = codecs.open('tweeter.dump', encoding='utf-8')
-fileOut = open( "tweeter.tokens", "w" )
+fileIn = codecs.open('exception_cases_tweets.txt', encoding='utf-8')
+fileOut = open( "exception_cases_tweets.txt.tokens", "w" )
 
 for line in fileIn:
 	o.tokenize( line )
