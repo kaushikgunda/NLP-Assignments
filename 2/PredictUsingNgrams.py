@@ -1,5 +1,5 @@
 import tweetTokenizer as t
-import codecs
+import codecs, re
 
 def formatTheSentences():
 	fileIn = codecs.open('The Adventures of Sherlock Holmes.txt')
@@ -14,40 +14,22 @@ def formatTheSentences():
 
 def doTokenization():
 	o = t.Tokenizer( )
-	fileIn = codecs.open('The Adventures of Sherlock Holmes.txt')
-	fileOut = codecs.open('The Adventures of Sherlock Holmes.tokens', "w+")
-	tokensList = [ "<s>" ]
-	sentences = []
+	fileIn = codecs.open('twitter.dump', encoding='utf-8')
+	fileOut = open('twitter.tokens', "w+")
+	tokensList = []
+	lines = ""
 	for line in fileIn:
-		o.tokenize( line )
-		tokens = o.getTokens();
-		o.clearTokens()
-		if len(tokens) == 0:
-			tokensList.extend( ["</s>"] )
-			if len(tokensList) > 2:
-				sentences.append( tokensList )
-			tokensList = [ "<s>" ]
-		else:
-			tokensList.extend( tokens )
-			if '.' in tokensList:
-				indx = tokensList.index( '.' )
-				tmp = tokensList[:indx+1]
-				tmp.append( ["</s>"] )
-				if len(tmp) > 2:
-					sentences.append( tmp )
-				tmp = ["<s>"]
-				tmp.extend( tokensList[indx+1:] )
-				tokensList = tmp;
-	if len(sentences) != 0:
-		tokensList.append( ["</s>"] )
-		if len(tokensList) == 2:
-			sentences.append( tokensList )
+		o.tokenize(line.strip())
+		temp = o.getTokens();
+		o.clearTokens();
+		if len(temp) != 0:
+			tokens = [ "<s>" ]
+			tokens.extend( temp )
+			tokens.extend( ["</s>"] )
+			tokensList.append( tokens )
 
-	for sentence in sentences:
-		tmp = ""
-		for word in sentence[1:-1]:
-			tmp += word + " "
-		fileOut.write( tmp.strip() )
+	for line in tokensList:
+		fileOut.write( str(line) )
 		fileOut.write( "\n" )
 
 	fileOut.close()
@@ -55,10 +37,24 @@ def doTokenization():
 
 def getProbability( word, n ):
 	""" Get the probability of the word	to appear at the end of the line, using """
-	probability = 1.0
+	fileIn = codecs.open('The Adventures of Sherlock Holmes.tokens')
+	p = re.compile( "([A-Za-z0-9]+ +){"+str(n-1)+"}"+word+"$" )
+	print p.pattern
+
+	countNum = 0;
+	countDen = 0;
+	for line in fileIn:
+		countDen += 1
+		if p.match(line) is not None:
+			countNum += 1 
+
+	print countNum
+	print countDen
+	return 1.0 * countNum / countDen
+
 
 
 if __name__ == "__main__":
 	doTokenization();
-	word = "us"
-	print getProbability( word, 2 )
+	# word = "us"
+	# print getProbability( word, 2 )
