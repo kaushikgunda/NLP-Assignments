@@ -39,10 +39,10 @@ def generateNGrams( tokensList, n ):
 	ngrams = {}
 	for line in tokensList:
 		if len(line) < n:
-			break;
+			continue;
 		for i in xrange( n, len(line)+1 ):
 			key = tuple( line[i-n:i] )
-			ngrams[ key ]  = (ngrams[key]+1) if key in ngrams else 1
+			ngrams[ key ] = (ngrams[key]+1) if key in ngrams else 1
 
 	sortedByValues = OrderedDict(sorted(ngrams.items(), key=lambda x: x[1], reverse=True))
 
@@ -58,10 +58,10 @@ def generateNGrams( tokensList, n ):
 
 def getProbabiliy( ngrams, word ):
 	countNum, countDen = 0.0,0.0;
-	for ngram in ngrams:
+	for ngram in ngrams.keys():
 		countNum += ( 1 if ngram[-2]==word and ngram[-1]=="</s>" else 0 )
 		countDen += ( 1 if word in ngram else 0 )
-	return (countNum/countDen) if countDen!=0 else 0
+	return ( (countNum+1) / (countDen+len(ngrams)) )
 
 
 
@@ -73,9 +73,8 @@ if __name__ == "__main__":
 	word = raw_input("Enter the word for finding the probability to be at the end of a sentence:\n");
 	word = word.strip()
 
-	for x in xrange(2,10):
+	for x in xrange(2,7):
 		print "{0}. Generating \'{1}-grams\'".format(i,x);	i+=1
 		ngrams = generateNGrams( tokensList, n=x )
-		p.dump( ngrams, open( str(i)+"gram", "wb+") )
 		probability = getProbabiliy( ngrams=ngrams, word=word );
 		print "   probability: ", str(probability)

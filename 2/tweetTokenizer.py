@@ -30,7 +30,7 @@ unicodePunctPattern = { 0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22 }
 
 class Tokenizer(object):
 
-	def __init__(self, ignoreList):
+	def __init__(self, ignoreList=[]):
 		super(Tokenizer, self).__init__()
 		self.tokens = []
 		self.ignoreList = ignoreList
