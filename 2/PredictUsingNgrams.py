@@ -13,7 +13,7 @@ def formatTheSentences():
 
 
 def doTokenization():
-	o = t.Tokenizer( )
+	o = t.Tokenizer( ignoreList= [ 'email', 'url', 'ellipses', 'punct', 'unicodeEmoji' ] )
 	fileIn = codecs.open('twitter.dump', encoding='utf-8')
 	fileOut = open('twitter.tokens', "w+")
 	tokensList = []

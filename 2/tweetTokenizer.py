@@ -21,18 +21,19 @@ regex['email'] = re.compile( r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9]+(\.[
 regex['url'] = re.compile( "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)" )
 regex['ellipses'] = re.compile( r"\.\.\.$" )
 regex['punct'] = re.compile( "|".join( [re.escape(c) for c in punctuation] ) )
-regexLst = [ regex['email'], regex['url'], regex['abbre'], regex['word'], 
-				regex['smileys'], regex['unicodeEmoji'],
-				regex['mentions'], regex['tags'], regex['ellipses'], 
-				regex['punct'] ]
+regexLst = [ 'email', 'url', 'abbre', 'word', 
+				'smileys', 'unicodeEmoji',
+				'mentions', 'tags', 'ellipses', 
+				'punct' ]
 unicodePunctPattern = { 0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22 }
 
 
 class Tokenizer(object):
 
-	def __init__(self):
+	def __init__(self, ignoreList):
 		super(Tokenizer, self).__init__()
 		self.tokens = []
+		self.ignoreList = ignoreList
 
 	def tokenize( self, text ):
 		self.text = text
@@ -51,11 +52,13 @@ class Tokenizer(object):
 		sentence = sentence.translate(unicodePunctPattern)
 		while len(sentence)!=0:
 			patternFound = False
-			for regexp in regexLst:
+			for regexpKey in regexLst:
+				regexp = regex[regexpKey]
 				m = regexp.match( sentence )
 				if m is not None:
 					patternFound = True
-					self.tokens.append( m.group() );
+					if regexpKey not in self.ignoreList:
+						self.tokens.append( m.group() );
 					sentence = sentence[m.end():].strip()
 					break;
 			if patternFound == False:
