@@ -1,5 +1,6 @@
 import tweetTokenizer as t
-import codecs, re
+import codecs, re, operator
+from collections import OrderedDict
 
 def formatTheSentences():
 	fileIn = codecs.open('The Adventures of Sherlock Holmes.txt')
@@ -27,34 +28,33 @@ def doTokenization():
 			tokens.extend( temp )
 			tokens.extend( ["</s>"] )
 			tokensList.append( tokens )
-
 	for line in tokensList:
 		fileOut.write( str(line) )
 		fileOut.write( "\n" )
-
 	fileOut.close()
+	return tokensList
 
 
-def getProbability( word, n ):
-	""" Get the probability of the word	to appear at the end of the line, using """
-	fileIn = codecs.open('The Adventures of Sherlock Holmes.tokens')
-	p = re.compile( "([A-Za-z0-9]+ +){"+str(n-1)+"}"+word+"$" )
-	print p.pattern
+def generateNGrams( tokensList, n ):
+	ngrams = {}
+	for line in tokensList:
+		if len(line) < n:
+			break;
+		for i in xrange( n, len(line)+1 ):
+			key = tuple( line[i-n:i] )
+			ngrams[ key ]  = (ngrams[key]+1) if key in ngrams else 1
 
-	countNum = 0;
-	countDen = 0;
-	for line in fileIn:
-		countDen += 1
-		if p.match(line) is not None:
-			countNum += 1 
+	sortedByValues = OrderedDict(sorted(ngrams.items(), key=lambda x: x[1], reverse=True))
 
-	print countNum
-	print countDen
-	return 1.0 * countNum / countDen
+	fileOut = open('twitter.ngrams', "w+")
+	for k,v in sortedByValues.items():
+		fileOut.write( str(k) )
+		fileOut.write( " : " )
+		fileOut.write( str(v) )
+		fileOut.write( "\n")
 
-
+	return ngrams
 
 if __name__ == "__main__":
-	doTokenization();
-	# word = "us"
-	# print getProbability( word, 2 )
+	tokensList = doTokenization();
+	bigrams = generateNGrams( tokensList, n=2 )
