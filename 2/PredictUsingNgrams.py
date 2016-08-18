@@ -1,5 +1,5 @@
-import tweetTokenizer as t
-import codecs, re, operator
+import tweetTokenizer as t, pickle as p
+import codecs, re, operator, sys
 from collections import OrderedDict
 
 def formatTheSentences():
@@ -46,15 +46,36 @@ def generateNGrams( tokensList, n ):
 
 	sortedByValues = OrderedDict(sorted(ngrams.items(), key=lambda x: x[1], reverse=True))
 
-	fileOut = open('twitter.ngrams', "w+")
-	for k,v in sortedByValues.items():
-		fileOut.write( str(k) )
-		fileOut.write( " : " )
-		fileOut.write( str(v) )
-		fileOut.write( "\n")
+	if len(sortedByValues) != 0:
+		fileOut = open('twitter.ngrams', "w+")
+		for k,v in sortedByValues.items():
+			fileOut.write( str(k) )
+			fileOut.write( " : " )
+			fileOut.write( str(v) )
+			fileOut.write( "\n")
 
-	return ngrams
+	return sortedByValues
+
+def getProbabiliy( ngrams, word ):
+	countNum, countDen = 0.0,0.0;
+	for ngram in ngrams:
+		countNum += ( 1 if ngram[-2]==word and ngram[-1]=="</s>" else 0 )
+		countDen += ( 1 if word in ngram else 0 )
+	return (countNum/countDen) if countDen!=0 else 0
+
+
 
 if __name__ == "__main__":
+	i = 1
+	print "{0}. Tokenizing".format(i);	i+=1
 	tokensList = doTokenization();
-	bigrams = generateNGrams( tokensList, n=2 )
+
+	word = raw_input("Enter the word for finding the probability to be at the end of a sentence:\n");
+	word = word.strip()
+
+	for x in xrange(2,10):
+		print "{0}. Generating \'{1}-grams\'".format(i,x);	i+=1
+		ngrams = generateNGrams( tokensList, n=x )
+		p.dump( ngrams, open( str(i)+"gram", "wb+") )
+		probability = getProbabiliy( ngrams=ngrams, word=word );
+		print "   probability: ", str(probability)
