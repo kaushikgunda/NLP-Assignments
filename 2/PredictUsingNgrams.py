@@ -1,6 +1,7 @@
 import tweetTokenizer as t
 import codecs, re, operator, sys
 from collections import OrderedDict
+from matplotlib import pyplot as ppl
 
 def formatTheSentences():
 	fileIn = codecs.open('The Adventures of Sherlock Holmes.txt')
@@ -105,7 +106,12 @@ if __name__ == "__main__":
 	for x in xrange(2,7):
 		ngrams[x] = generateNGrams( tokensList, n=x )
 
+	y = []
 	for x in xrange(1,7):
 		print "{0}. Generating \'{1}-grams\'".format(i,x);	i+=1
 		probability = getProbabiliy( word=word, n=x );
+		y.append( probability )
 		print "   probability: ", str(probability)
+
+	ppl.plot( range(len(y)), y )
+	ppl.show()
