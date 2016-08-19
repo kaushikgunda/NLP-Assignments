@@ -1,4 +1,4 @@
-import tweetTokenizer as t
+import tweetTokenizer as t, pickle as p
 import codecs, re, operator, sys
 from collections import OrderedDict
 from matplotlib import pyplot as ppl
@@ -16,7 +16,7 @@ def formatTheSentences():
 
 def doTokenization():
 	o = t.Tokenizer( ignoreList= [ 'email', 'url', 'ellipses', 'punct', 'unicodeEmoji' ] )
-	fileIn = codecs.open('twitter_small.dump', encoding='utf-8')
+	fileIn = codecs.open('twitter.dump', encoding='utf-8')
 	fileOut = open('twitter.tokens', "w+")
 	tokensList = []
 	lines = ""
@@ -42,12 +42,12 @@ def generateNGrams( tokensList, n ):
 		if len(line) < n:
 			continue;
 		for i in xrange( 0, len(line)-n+1 ):
-			key = tuple( line[i:i+n+1] )
+			key = tuple( line[i:i+n] )
 			ngrams[ key ] = (ngrams[key]+1) if key in ngrams else 1
 
 	sortedByValues = OrderedDict(sorted(ngrams.items(), key=lambda x: x[1], reverse=True))
 
-	if len(sortedByValues) != 0:
+	if len(sortedByValues) != 0 and n==2:
 		fileOut = open('twitter.ngrams', "w+")
 		for k,v in sortedByValues.items():
 			fileOut.write( str(k) )
@@ -105,13 +105,14 @@ if __name__ == "__main__":
 	ngrams[1] = generateNGrams( tokensList, n=1 )
 	for x in xrange(2,7):
 		ngrams[x] = generateNGrams( tokensList, n=x )
+	p.dump( ngrams, open("./ngrams","wb+") )
 
 	y = []
-	for x in xrange(1,7):
+	for x in xrange(2,7):
 		print "{0}. Generating \'{1}-grams\'".format(i,x);	i+=1
 		probability = getProbabiliy( word=word, n=x );
 		y.append( probability )
 		print "   probability: ", str(probability)
 
-	ppl.plot( range(len(y)), y )
-	ppl.show()
+		ppl.plot( range(len(y)), y )
+		ppl.show()
