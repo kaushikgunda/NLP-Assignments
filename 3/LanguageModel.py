@@ -1,6 +1,5 @@
 """
-python LanguageModel.py n
-n -> value of n from n-grams
+python LanguageModel.py [ loadNGrams ]
 """
 
 
