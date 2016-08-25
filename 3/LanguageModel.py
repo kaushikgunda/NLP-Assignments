@@ -1,3 +1,9 @@
+"""
+python LanguageModel.py n
+n -> value of n from n-grams
+"""
+
+
 import sys, os, codecs
 import pickle as p
 from collections import OrderedDict
@@ -65,24 +71,31 @@ def wordIsFoundInNgram( ngram, n, word ):
 
 ngrams = {}
 
-def getProbabiliy( words ):
+def getProbabiliy( words, n ):
 	""" Returns Bigram probability """
 	countNum, countDen = 0, 0;
 	prob = 1.0
 	countOfUnigrams = len( ngrams[1] )
 
-	for x in xrange( len(words) ):
-		numStr = ( words[x-1], words[x] ) if x!=0 else ( words[x] )
-		denomStr = words[x]
-		if x!=0:
-			numStr = ( words[x-1], words[x] )
-			countNum = sum( [ ngrams[2][i] if i==numStr else 0 for i in ngrams[2] ] )
+	for x in xrange( 1, n ):
+		numStr = tuple( words[ : x+1] )
+		countNum = sum( [ ngrams[x][i] if i==numStr else 0 for i in ngrams[x] ] )
+		if x-1 == 0:
+			countDen = 0
+			countN1grams = len(ngrams[1])
 		else:
-			numStr = ( words[x] )
-			countNum = sum( [ ngrams[1][i] if i==numStr else 0 for i in ngrams[1] ] )
-		
-		countDen = sum( [ ngrams[1][i] if i==denomStr else 0 for i in ngrams[1] ] )
-		prob *= 1.0 * (countNum+1)/(countDen+countOfUnigrams)
+			denomStr = tuple( words[ : x] )
+			countDen = sum( [ ngrams[x-1][i] if i==denomStr else 0 for i in ngrams[x-1] ] )
+			countN1grams = len(ngrams[x-1])
+		prob *= 1.0 * (countNum+1)/(countDen+countN1grams)
+
+	for x in xrange( len(words)-n+1 ):
+		numStr = tuple( words[ : x+n-1] )
+		countNum = sum( [ ngrams[n][i] if i==numStr else 0 for i in ngrams[n] ] )
+		denomStr = tuple( words[ : x+n-2] )
+		countDen = sum( [ ngrams[n-1][i] if i==denomStr else 0 for i in ngrams[n-1] ] )
+		countN1grams = len(ngrams[n-1])
+		prob *= 1.0 * (countNum+1)/(countDen+countN1grams)
 
 	return prob
 
@@ -109,4 +122,4 @@ if __name__ == "__main__":
 
 	while True:
 		seedSentence = raw_input( "Enter sentence: " ).strip().split(" ")
-		print getProbabiliy( seedSentence )
+		print getProbabiliy( seedSentence, n=int(sys.argv[1]) )
