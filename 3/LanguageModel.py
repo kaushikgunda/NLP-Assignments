@@ -122,4 +122,5 @@ if __name__ == "__main__":
 
 	while True:
 		seedSentence = raw_input( "Enter sentence: " ).strip().split(" ")
-		print getProbabiliy( seedSentence, n=int(sys.argv[1]) )
+		for n in xrange(2,7):
+			print "{0}-grams: {1}".format(n, getProbabiliy( seedSentence, n=n ) )
