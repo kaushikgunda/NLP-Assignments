@@ -1,5 +1,7 @@
 """
-python PlotZipf.py [ loadNGrams ]
+python PlotZipf.py n director1 director2 director3 ...
+n 			-> 	n in n-grams
+director1	->	directory containing utf-8 books
 """
 
 
@@ -12,12 +14,13 @@ from matplotlib import pyplot as ppl
 sys.path.insert( 0, '../2' )
 
 import tweetTokenizer as t
+o = t.Tokenizer( ignoreList= [ 'email', 'url', 'ellipses', 'punct', 'unicodeEmoji' ] )
 
 
-def doTokenization():
-	o = t.Tokenizer( ignoreList= [ 'email', 'url', 'ellipses', 'punct', 'unicodeEmoji' ] )
-	files = [ "./Books/"+x for x in os.listdir("./Books/") ]
-	fileOut = open('books.tokens', "w+")
+def doTokenization( inpDir ):
+	if inpDir[-1] != '/':
+		inpDir += '/'
+	files = [ inpDir+x for x in os.listdir(inpDir) ]
 	for f in files:
 		fileIn = codecs.open(f, encoding='utf-8')
 		tokensList = []
@@ -28,10 +31,6 @@ def doTokenization():
 			o.clearTokens();
 			if len(tokens) != 0:
 				tokensList.append( tokens )
-		for line in tokensList:
-			fileOut.write( str(line) )
-			fileOut.write( "\n" )
-	fileOut.close()
 	return tokensList
 
 
@@ -104,10 +103,16 @@ def getProbabiliy( words, n ):
 
 if __name__ == "__main__":
 
-	i = 1	
-	if len(sys.argv) == 1:
+	n = int(sys.argv[1])
+	inpDirs = sys.argv[2:]
+
+	for inpDir in inpDirs:
+		print "####### Processing {0} #######".format(inpDir)
+		i = 1
+		n = 1;
+		ngrams = {}
 		print "{0}. Tokenizing".format(i);	i+=1
-		tokensList = doTokenization();
+		tokensList = doTokenization( inpDir );
 
 		print "{0}. Generating {1}-grams".format(i,1);	i+=1
 		ngrams[1] = generateNGrams( tokensList, n=1 )
@@ -115,17 +120,18 @@ if __name__ == "__main__":
 			print "{0}. Generating {1}-grams".format(i,x);	i+=1
 			ngrams[x] = generateNGrams( tokensList, n=x )
 		print "{0}. Pickling all n-grams".format(i,x);	i+=1
-		p.dump( ngrams, open("./ngrams","wb+") )
-	else:
-		print "{0}. Loading n-grams".format(i);	i+=1
-		ngrams = p.load( open("./ngrams","rb+") )
 
-	unigrams = ngrams[1];
+		grams = ngrams[n];
 
-	print "{0}. Computing X-coordinates".format(i);	i+=1
-	x = [ math.log(t) for t in xrange( 1, len(unigrams)+1 ) ]
-	print "{0}. Computing Y-coordinates".format(i);	i+=1
-	y = [ math.log(unigrams[t]) for t in unigrams ]
+		print "{0}. Computing X-coordinates".format(i);	i+=1
+		x = [ math.log(t) for t in xrange( 1, len(grams)+1 ) ]
+		print "{0}. Computing Y-coordinates".format(i);	i+=1
+		y = [ math.log(grams[t]) for t in grams ]
 
-	ppl.plot( x, y , 'r-' );
+		ppl.plot( x, y, label=inpDir.split('/')[-2] )
+
+	ppl.title( "Zipf curve using {0}-grams".format(n) )
+	ppl.xlabel('log(rank)')
+	ppl.ylabel('log(frequency)')
+	ppl.legend( loc='upper right' )
 	ppl.show();
