@@ -1,7 +1,9 @@
 from nltk.corpus import brown
 from nltk.data import load
+from collections import OrderedDict
 import math
 import tweetTokenizer
+
 
 # brown.words()
 # brown.tagged_words()
@@ -10,6 +12,8 @@ import tweetTokenizer
 # Add start and end tags to each sentence in the Brown-data
 print "1. Adding Start and End tags to the sentences..."
 tagged_sents = [ [('<s>','OTH')] + x + [('</s>','OTH')] for x in brown.tagged_sents() ]
+train_sent = tagged_sents[100:]
+test_sent = brown.sents()[:100]
 
 tagdict = load('help/tagsets/upenn_tagset.pickle')
 tagset = tagdict.keys()
@@ -44,42 +48,44 @@ for wordPosBigram in wordPosBigramCount:
 	wordPosBigramProb[ wordPosBigram ] = 1.0 * (wordPosBigramCount[wordPosBigram]+1) / (posUnigramCount[wordPosBigram[1]]+wordCount);
 	wordPosBigramProb[ wordPosBigram ] = -1 * math.log( wordPosBigramProb[wordPosBigram] )
 
-
-# Read the input from the user and Tokenize it
-sent = raw_input("Enter a sentence for POS tagging: ")
-print "4. Tokenizing..."
-sent = sent.decode('utf8')
-tokenizer = tweetTokenizer.Tokenizer()
-tokenizer.tokenize(sent)
-tokens = ["<s>"] + tokenizer.getTokens() + ["</s>"]
-tokenizer.clearTokens()
-
 transProbForNewToken = -1 * math.log( 1.0 / (posUnigramCount[posBigram[0]]+tagsCount) )
 emissionProbForNewToken = -1 * math.log( 1.0 / (posUnigramCount[wordPosBigram[1]]+wordCount) )
 
+
+# Read the input from the user and Tokenize it
+print "4. Testing.."
+i = 1
+resTagSents = []
 posSequenceProbDict = { }
-token = tokens[1]
-prevToken = tokens[0]
-for tagIndex in xrange( len(tagset) ):
-	tag = tagset[tagIndex]
-	transProb = posBigramProb[ (prevToken, token) ] if (prevToken,token) in posBigramProb else transProbForNewToken
-	emissProb = wordPosBigramProb[ (token,tag) ] if (token,tag) in wordPosBigramProb else emissionProbForNewToken
-	posSequenceProbDict[ tagset[tagIndex] ] =  transProb + emissProb
+for sent in test_sent:
+	print "Sentence-{0}".format( i )
+	i += 1
+	tokens = ["<s>"] + sent + ["</s>"]
+	token = tokens[1]
+	prevToken = tokens[0]
+	for tagIndex in xrange( len(tagset) ):
+		tag = tagset[tagIndex]
+		transProb = posBigramProb[ (prevToken, token) ] if (prevToken,token) in posBigramProb else transProbForNewToken
+		emissProb = wordPosBigramProb[ (token,tag) ] if (token,tag) in wordPosBigramProb else emissionProbForNewToken
+		posSequenceProbDict[ tagset[tagIndex] ] =  transProb + emissProb
 
-for tokenIndex in xrange(2, len(tokens)):
-	print "{0} of {1}".format( tokenIndex, len(tokens) )
-	temp = { }
-	prevToken = tokens[tokenIndex-1]
-	token = tokens[tokenIndex]
-	for tagSeq in posSequenceProbDict:
-		for currTag in tagset:
-			transProb = posBigramProb[ (prevToken, token) ] if (prevToken,token) in posBigramProb \
-															else transProbForNewToken
-			emissProb = wordPosBigramProb[ (token,currTag) ] if (token,currTag) in wordPosBigramProb \
-															else emissionProbForNewToken
-			key = tuple( list(tagSeq) + [currTag] )
-			temp[ key ] = transProb + emissProb
-	posSequenceProbDict = temp;
+	for tokenIndex in xrange(2, len(tokens)):
+		print "{0} of {1}".format( tokenIndex, len(tokens) )
+		temp = { }
+		prevToken = tokens[tokenIndex-1]
+		token = tokens[tokenIndex]
+		for tagSeq in posSequenceProbDict:
+			for currTag in tagset:
+				transProb = posBigramProb[ (prevToken, token) ] if (prevToken,token) in posBigramProb \
+																else transProbForNewToken
+				emissProb = wordPosBigramProb[ (token,currTag) ] if (token,currTag) in wordPosBigramProb \
+																else emissionProbForNewToken
+				key = tuple( list(tagSeq) + [currTag] )
+				temp[ key ] = transProb + emissProb
+		posSequenceProbDict = temp;
+		sortedByValues = OrderedDict(sorted(posSequenceProbDict.items(), key=lambda x: x[1], reverse=True))
+		maxKey = sortedByValues.keys()[0]
+		posSequenceProbDict = { maxKey : sortedByValues[maxKey] }
+	resTagSents += [ zip( tuple(tokens), tuple(posSequenceProbDict.keys()[0]) ) ]
 
-sortedByValues = OrderedDict(sorted(posSequenceProbDict.items(), key=lambda x: x[1], reverse=True))
-print sortedByValues[ sortedByValues.keys()[-1] ]
+print resTagSents
